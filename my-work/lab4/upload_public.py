@@ -3,17 +3,17 @@ import boto3
 s3 = boto3.client('s3')
 
 bucket = 'ds2022-sae3gg'
-local_file = '/home/karenguzman/DS2022/my-work/lab4/another_hero.png'
-key = local_file
-def upload_private(local_file, bucket, key):
-        s3.put_object(
-                Body = local_file,
+local_file = 'project/another_hero2.png'
+object_name = 'another_hero2.png'
+with open(local_file, 'rb') as file_data:
+        resp = s3.put_object(
+                Body = file_data,
                 Bucket = bucket,
-                Key = key,
-		ACL = 'public-read'
+                Key = object_name,
+                ACL = 'public-read',
+                ContentType='image/png'
         )
-        file_url = f"https://{bucket}.s3.amazonaws.com/{key}"
-        return file_url
-
-upload_private(local_file, bucket, key)
+#another_hero2.png
+file_url = f"https://{bucket}.s3.amazonaws.com/{object_name}"
+print(file_url)
 

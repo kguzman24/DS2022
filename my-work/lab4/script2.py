@@ -1,31 +1,36 @@
 #!/usr/bin/python3
-
+import os
 import boto3
-import requests
+import urllib.request
+s3 = boto3.client('s3')
 
+file_url = 'https://media.idownloadblog.com/wp-content/uploads/2016/11/Animated-GIF-Banana.gif'
+local_file = 'project/my_file.gif'
 
-#bucket = 'ds2022-sae3gg'
-#object_name = 'g'
-#expires_in = int
-def download_file(url, local_file):
-	response = requests.get(url)
+bucket = 'ds2022-sae3gg'
+object_name = 'downloaded-file.gif'
+expires_in = 604800
 
-def upload_file(local_file, bucket, object_name):
-	s3 = boto3.client('s3')
-        s3.put_object(
-                Body = local_file,
-                Bucket = bucket,
-                Key = key
-        )
-        file_url = f"https://{bucket}.s3.amazonaws.com/{key}"
-        return file_url
+os.makedirs(os.path.dirname(local_file), exist_ok=True)
 
-def gen_presigned_url(bucket, object_name, expires_in=604800):
-	s3 = boto3.client('s3')
-	response = s3.generate_presigned_url(
-		'get_object',
-		Params{'Bucket': bucket_name, 'Key': object_name},
-		ExpiresIn=expires_in
+#download
+urllib.request.urlretrieve(file_url, local_file)
+
+#upload
+with open(local_file, 'rb') as file_data:
+	s3.put_object(
+		Body = file_data,
+		Bucket = bucket,
+		Key = object_name,
+		ACL = 'public-read',
+		ContentType='image/gif'
 	)
-	return response
+
+url = s3.generate_presigned_url(
+    'get_object',
+    Params={'Bucket': bucket, 'Key': object_name},
+    ExpiresIn=expires_in
+)
+#gif
+print(f"Presigned url: {url}")
 
